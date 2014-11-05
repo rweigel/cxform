@@ -1,0 +1,25 @@
+This file describes what you need to do to add support for a new
+coordinate system.  The fact that you're reading this implies that
+you've untar'ed development-tools.tar.gz, and now have gen_cxform_auto.pl
+and Makefile.develop accessible to you.
+
+
+It's pretty simple.
+
+
+All you need to do is define one transformation between the new system
+and any of the existing ones. Once you do that, the Perl script will
+generate code to convert to all others. 
+
+Here's what you do:
+
+  1. Edit the file cxform-manual.c and add a new function, xxxx_twixt_yyyy, 
+     where `xxxx' is any existing coordinate frame, and `yyyy' is the new one.
+
+  2. Run "make". This will create a new cxform-auto.c with support for 
+     your new coordinate system. 
+
+  3. Run IDL, and test it. That's it! 
+
+If it works, please send me your code.  I will include it in the
+next distribution (with appropriate credit to you, of course).

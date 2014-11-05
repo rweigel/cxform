@@ -1,0 +1,70 @@
+This is Ed's "cxform" package, for transforming between coordinate frames.
+
+The latest version of this package should be available at
+
+	http://www.nis.lanl.gov/~esm/idl/cxform/
+
+
+=======================
+Using the code from IDL
+=======================
+
+The function prototype is
+
+	new = CXFORM( pos, source_frame, dest_frame, time )
+
+where:
+	pos		is a vector of length 3, containing the position
+			in source_frame coordinates.
+
+	source_frame	is an ASCII string naming the source
+			coordinate system, e.g., 'GSE', 'J2000'
+
+	dest_frame	is also an ASCII string, naming the destination
+			coordinate system.
+
+	time		is "ephemeris seconds past J2000 (1 Jan 2000 12:00)".
+			Not the most convenient time unit for you, I 
+			suppose, but it is for me.
+
+
+	new		is the position, in dest_frame coordinates.
+
+
+For example:
+
+	IDL> spice_init_generic		; to initialize SPICE, for STR2ET
+	IDL> cspice_str2et, '1999 Sep 30 07:05', et
+	IDL> pos = cxform([1,0,0], 'GSE', 'GEO', et)
+	IDL> help,pos
+	POS             DOUBLE    = Array[3]
+	IDL> print,pos
+	      0.32476279      0.94466059    -0.046319448
+	IDL> 
+
+
+=======================
+Coordination Animations
+=======================
+
+The IDL program COORD_ANIM can be used to display an animation on your 
+screen, showing the relationships between two coordinate systems.
+
+The default animation steps through one hour at a time.  This brings
+out the effect of Earth's rotation.  For some coordinate systems,
+this effect is nonexistent, and only serves to slow things down 
+a lot.  For instance, the GSE axes do not vary much over one day,
+whereas the GEO ones do.
+
+For that reason, you can use the "STEP" keyword to specify the number
+of hours in each step.
+
+
+Here are some useful ones to try:
+
+	coord_anim, 'GSE', 'GSM', step=24
+	coord_anim, 'GSE', 'GEI', step=24
+	coord_anim, 'GSE', 'GEO', step=1
+
+...but remember, you can give it any two you like.  
+

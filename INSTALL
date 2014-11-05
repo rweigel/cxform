@@ -1,0 +1,139 @@
+============
+REQUIREMENTS
+============
+
+CXFORM requires IDL 5.0 or greater.  It has been tested on Linux 2.0.*, 
+Solaris 2.6, and DEC OSF/1 V4.0.  I know of no reason why it shouldn't
+run on any platform.
+
+
+========
+BUILDING
+========
+
+Chances are, you can probably just type
+
+	% make
+
+If that fails, check the environment variables $IDL_DIR.  It must point 
+to the directory where IDL is installed.  In this directory, there must 
+be a subdirectory "external", in which must be a file "export.h".
+IDL_DIR is required for running IDL, so chances are good that you 
+already have this in your environment.
+
+If you still can't get it to build, please inform Ed Santiago <esm@lanl.gov>.
+
+
+==========
+INSTALLING
+==========
+
+Once the "make" succeeds, you will have two files to deal with:
+
+  cxform.so	(called "cxform.sl" on HP/UX)
+  cxform.dlm
+
+IDL requires that both of those files live together in the same directory,
+which must be one of:
+
+  1) the current directory  (".")
+  2) IDL's binary directory ("$IDL_DIR/bin/bin.<your_arch>")
+  3) a directory pointed to by $IDL_DLM_PATH
+
+For testing purposes, option (1) is fine.  For production, though, you
+want IDL to see them no matter where you're cd'ed to.  
+
+
+-----------------------------------
+INSTALLING UNDER IDL 5.3 OR GREATER
+-----------------------------------
+
+If you have IDL 5.3 or greater, the solution is simple and elegant: 
+just copy the files to a local architecture-specific directory (for
+example, "/usr/local/lib/idl"), then add a line to your .cshrc:
+
+  setenv IDL_DLM_PATH "/usr/local/lib/idl:<IDL_DEFAULT>"
+
+(note: if you use sh/ksh/bash, you're smart enough to know what to change)
+
+Be careful: the angle brackets are mandatory, since that's the
+convention defined by RSI.  This then makes the quotes mandatory,
+too, to prevent the shell from treating the angle brackets as I/O 
+redirection).
+
+
+------------------------
+INSTALLING UNDER IDL 5.2
+------------------------
+
+If you have IDL 5.2, you have three possible ways to effect this: simple 
+and ugly, complex and ugly, or complex and less ugly (there is no simple 
+and clean):
+
+  1) (Simple-And-Ugly): copy the files to RSI's own directory.  For Linux, 
+     that would be:
+
+        % cp -f cxform.so cxform.dlm $IDL_DIR/bin/bin.linux/
+
+     This requires write access to that directory, so it may not be
+     an option for everyone.  I heartily recommend against this.
+
+
+  2) (Complex-and-Ugly): copy the files to a local lib directory, and point
+     the IDL_DLM_PATH variable to this and the RSI default directories:
+
+        % cp -f cxform.so cxform.dlm  /usr/local/lib/
+	% setenv IDL_DLM_PATH /usr/local/lib:$IDL_DIR/bin/bin.linux
+
+     This is ugly because you must hard-code your machine architecture
+     into IDL_DLM_PATH, which prevents you from running IDL on
+     anything but that machine type.  You could do complex shell
+     case statements based on uname, but that can get even uglier.
+
+
+  3) (Complex-and-Less-Ugly): copy the files to a local lib directory, then
+     make a symlink from there to the RSI directory, and set IDL_DLM_PATH
+     to something with a "+" in front:
+
+        % cp -f cxform.so cxform.dlm /usr/local/lib/
+        % ln -s $IDL_DIR/bin/bin.linux  /usr/local/lib/rsi
+        % setenv IDL_DLM_PATH +/usr/local/lib
+
+     (the "+" tells IDL to search that dir, and all subdirectories).
+
+
+=======
+TESTING
+=======
+
+Start IDL, then type "help, 'cxform', /dlm".  You should see something like:
+
+  IDL> help,'cxform',/dlm
+  ** CXFORM - Ed Santiago's Coordinate Transform package (not loaded)
+      Version: 0.2, Build Date: 2000-06-14 12:00, Source: esm@lanl.gov
+      Path: /path/to/wherever/you/installed/it/cxform.so
+  IDL>
+
+ (If you see '% Unknown dynamically loadable module: cxform' instead, please  )
+ (go back to the installation sequence and make sure your IDL_DLM_PATH is  )
+ (set properly, and the files cxform.so and cxform.dlm are in proper place.)
+
+Now try something that will force the library to be loaded.  Type:
+
+  IDL> print, cxform()
+  % Loaded DLM: CXFORM.
+  % Usage: v_out = CXFORM( v_in[3], `from', `to', et )
+  % Execution halted at:  $MAIN$                 
+  IDL> 
+
+If it makes it this far, you're all set.
+
+If it bombs out, it's possible that the .so file wasn't built properly,
+or is for the wrong architecture.
+
+
+========
+USING IT
+========
+
+See README for an introduction to using the package.
