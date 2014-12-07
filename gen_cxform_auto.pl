@@ -2,21 +2,31 @@
 #
 # gen_mappings.pl  --  make a C file containing mappings to coord xforms
 #
-# $Id: gen_cxform_auto.pl,v 1.32 2000/06/14 18:00:05 esm Exp $
+# $Id: gen_cxform_auto.pl,v 1.1.1.1 2005/02/25 20:41:41 rboller Exp $
+#
+# 2003/09/12: Modified by Ryan Boller to remove references to CVS
 #
 ($ME = $0) =~ s,.*/,,;
 
 use strict;
-use vars qw($ME  $INFILE  $RCSID $RCSID_INFILE  %MAPS_TO %MAPS_FROM  @SYSTEMS);
+use vars qw($ME  $INFILE  $RCSID $RCSID_INFILE $MANUAL_VERSION
+			%MAPS_TO %MAPS_FROM  @SYSTEMS);
 
 ###############################################################################
 # BEGIN user-configurable section
 
 $INFILE = "cxform-manual.c";
 
-my $x = "";
-$RCSID = " \$Id: gen_cxform_auto.pl,v 1.32 2000/06/14 18:00:05 esm Exp $x";
-$RCSID = filter_rcsid($RCSID);
+# CVS-related code commented out
+#my $x = "";
+#$RCSID = " \$Id: gen_cxform_auto.pl,v 1.1.1.1 2005/02/25 20:41:41 rboller Exp $x";
+#$RCSID = filter_rcsid($RCSID);
+
+# Version of this script
+$RCSID = "1.40";
+
+# Version of cxform-manual file
+$MANUAL_VERSION = "1.30";
 
 # Security
 $ENV{PATH}   = "/packages/bin:/usr/bin:/bin";
@@ -270,7 +280,7 @@ open OUT, "> $TMP"	or die "$ME: open( >$TMP ): $!\n";
 
 printf OUT <<EOP, version($RCSID, $RCSID_INFILE), date_and_time(), whoami();
 MODULE       CXFORM
-DESCRIPTION  Ed Santiago\'s Coordinate Transform package
+DESCRIPTION  Ed Santiago and Ryan Boller\'s Coordinate Transform package
 VERSION      %s
 BUILD_DATE   %s
 SOURCE       %s
@@ -310,7 +320,8 @@ sub whoami {
   my $username = getlogin() || (getpwuid($<))[0] || "Unknown";
   my $hostname = hostfqdn();
 
-  return sprintf("%s\@%s", $username, $hostname);
+  # Hostname removed due to inaccurate e-mail address
+  return $username;  # sprintf("%s\@%s", $username, $hostname);
 }
 
 
@@ -329,14 +340,15 @@ sub initialize {
   my %seen;
   tie %seen, "Tie::IxHash";
 
-  $RCSID_INFILE = "<unknown>";
+  # CVS functionality removed - version number is set in header
+  $RCSID_INFILE = $MANUAL_VERSION;  # "<unknown>";
 
   # Reread the infile, looking for the RCS ID and for "_twixt_" declarations
   open(IN, $infile) or die "$ME: in initialize(): open( $infile ): $!\n";
   while (<IN>) {
-    if(/(\$ Id: \s .* \$)/x) {
-      $RCSID_INFILE = filter_rcsid($1);
-    }
+#    if(/(\$ Id: \s .* \$)/x) {
+#      $RCSID_INFILE = filter_rcsid($1);
+#    }
     if (/^(\s*(\S+)\s+)?(\w+)_twixt_(\w+)\s*\(\s*const double et/) {
       my ($from, $to) = (uc $3, uc $4);
 
@@ -519,6 +531,10 @@ sub sequence($$..) {
 #  version  #  returns a nicely formatted version string for the .dlm file
 #############
 sub version {
+ 
+  # Subroutine bypassed due to errors
+  return $_[0];
+	
   open(IN, "VERSION") or die "$ME: open( VERSION ): $!\n";
   my $version_official = <IN>;
   chop $version_official;

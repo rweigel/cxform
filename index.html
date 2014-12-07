@@ -1,0 +1,435 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>CXFORM Coordintate Transformation Package</title>
+  <meta name="description"
+ content="A set of space physics coordinate transformation routines for IDL and C">
+  <meta name="keywords"
+ content="coordinate, transformations, IDL, C, space, physics, GSE, GSM, GEI, GCI, ECI, J2000, GEO, MAG, SM, RTN, ECL, HEE, HAE, GSEQ">
+</head>
+<body>
+<div align="center"><big><font size="+3"><small><small><font
+ face="Courier New, Courier, monospace"><b> CXFORM: </b>Coordinate
+transformation package for IDL and C</font></small></small></font><tt><b><br>
+<br>
+</b></tt></big><br>
+<img src="neon_sys2.jpg" alt="" height="177" width="575"> <br>
+<br>
+<div align="left"><tt><br>
+</tt><font face="Courier New, Courier, monospace">Originally written by
+<a href="mailto:esm%20%3Cat%7D%20pobox%20%28dot%29%20com">Ed Santiago</a>
+(LANL)<br>
+Extended by Ryan Boller
+</font><br>
+<br>
+<big><tt><br>
+Jump to:&nbsp; <a href="#Overview">Overview</a> &nbsp; <a
+ href="#Download">Download</a> &nbsp; <a href="#Usage">Usage</a>
+&nbsp; <a href="#Sys_Impl">Coord. Systems Impl.</a> &nbsp; <a
+ href="#Misc">Misc.</a>
+<br>
+<br>
+<a href="#Misc"><br>
+</a>
+<br>
+<br>
+</tt></big></div>
+<div align="left"><big><tt><a name="Overview"></a>
+============================<br>
+&nbsp; OVERVIEW<br>
+============================<br>
+<br>
+The CXFORM package contains a set of routines to convert spacecraft
+coordinates<br>
+from one system to another, i.e., GSE--&gt;GSM.&nbsp; It is written in
+C and can be<br>
+used as either a C library (.so or .dll) or as an IDL function on most
+platforms<br>
+(via its DLM -- Dynamically Loadable Module -- interface).<br>
+<br>
+It has been tested under SunOS v5.7, Microsoft Windows 2000/XP, Mac OS
+X 10.3<br>
+&amp; 10.4, and Linux kernel release 2.4.20.&nbsp; It has previously
+been tested under
+<br>
+Solaris 2.6 and DEC OSF/1 V4.0.<br>
+<br>
+It is largely based on Mike Hapgood's excellent introduction to
+coordinate <br>
+transformations, along with Markus Fraenz' "Heliospheric Coordinate
+Systems" <br>
+and Christopher Russell's "Geophysical Coordinate Transformations":<br>
+<br>
+&nbsp;&nbsp;&nbsp; <a
+ href="http://sspg1.bnsc.rl.ac.uk/Share/Coordinates/ct_home.htm">
+http://sspg1.bnsc.rl.ac.uk/Share/Coordinates/ct_home.htm</a> <br>
+&nbsp;&nbsp;&nbsp; <a
+ href="http://www.space-plasma.qmul.ac.uk/heliocoords/">
+http://www.space-plasma.qmul.ac.uk/heliocoords/</a> <br>
+&nbsp;&nbsp;&nbsp; <a
+ href="http://www-ssc.igpp.ucla.edu/personnel/russell/papers/gct1.html/">
+http://www-ssc.igpp.ucla.edu/personnel/russell/papers/gct1.html/</a> <br>
+<br>
+<br>
+Note that since this follows much of Hapgood's formulae that are
+optimized for<br>
+simplicity and efficiency, he specifies a level of precision of 0.001
+degrees<br>
+up to the year 2100 for each rotation angle, which has been deemed
+sufficient<br>
+for space physics applications.&nbsp; The disclaimer applies that these
+should not<br>
+be used for mission-critical flight applications due to their margin of
+error.<br>
+<br>
+Formal testing has been completed as of 2004/12/01.&nbsp; The results
+can be <br> found in the test_results directory.  In <br>
+general, they are within 1% of the results of<br>
+<a href="http://sscweb.gsfc.nasa.gov">SSCWeb's</a> calculations (based
+on GEOPACK), and in many cases are within<br>
+0.01%.<br>
+<br>
+If you find CXFORM to be useful (or have other comments), please let us know.
+&nbsp; <br>
+For one example of CXFORM in a production environment, visit the <a
+ href="http://earthnow.usgs.gov/">USGS </a><br>
+<a href="http://earthnow.usgs.gov/">EarthNow! Landsat Image Viewer</a>.&nbsp;
+By converting satellite positions and <br>
+velocities from GEI to GEO, the exact ground track can be computed,
+enabling <br>
+city names and the track itself to be properly located.<br>
+<br>
+<br>
+<a name="Download"></a> ============================<br>
+&nbsp; DOWNLOAD / INSTALLATION<br>
+============================<br>
+<br>
+Source code:<br>
+compile using instructions in install.txt.&nbsp; You will need the
+C<br>
+&nbsp;&nbsp;&nbsp; compiler
+included in Xcode for MacOS X.<br>
+<br>
+<br>
+<a name="Usage"></a> ============================<br>
+&nbsp; USAGE FROM IDL<br>
+============================<br>
+<br>
+The function prototype is<br>
+<br>
+&nbsp;&nbsp;&nbsp; new_pos = CXFORM( pos, source_frame, dest_frame,
+time )<br>
+<br>
+where:<br>
+&nbsp;&nbsp;&nbsp; pos&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; is a vector of length 3, containing the position<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; in source_frame coordinates. It
+can also be a 2-D<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; array of size [3, M], where M is
+the number of points<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; to convert<br>
+<br>
+&nbsp;&nbsp;&nbsp; source_frame&nbsp;&nbsp;&nbsp; is an ASCII string
+naming the source<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; coordinate system, e.g., 'GSE',
+'J2000'.&nbsp; See <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; "Coordinate Systems Implemented"
+below.<br>
+<br>
+&nbsp;&nbsp;&nbsp; dest_frame&nbsp; &nbsp;&nbsp;&nbsp; is also an ASCII
+string, naming the destination<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; coordinate system.<br>
+<br>
+&nbsp;&nbsp;&nbsp; time&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; is "ephemeris seconds past J2000 (1 Jan 2000 12:00)".<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; The "date2es" function converts a
+standard Gregorian<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; time (mm,dd,yyyy) to Ephemeris
+Seconds past/before<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; J2000.&nbsp; See the included
+"date2es.pro" file for more <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; details.<br>
+<br>
+&nbsp;&nbsp;&nbsp; new_pos&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; is the
+position, in dest_frame coordinates.<br>
+<br>
+<br>
+<br>
+Single-coordinate example:<br>
+<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; es = date2es(9,30,1999,7,5,0)&nbsp; ; Sep.
+30, 1999 07:05:00 UTC<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; pos = cxform([1,0,0], 'GSE', 'GEO', es)<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; help,pos<br>
+&nbsp;&nbsp;&nbsp;
+POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DOUBLE&nbsp;&nbsp;&nbsp; = Array[3]<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; print,pos<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.32034915&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.94616669&nbsp;&nbsp;&nbsp;
+-0.046314350<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; <br>
+<br>
+<br>
+Multiple-coordinate example:<br>
+<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; imp8GEI = fltarr(3, 5)<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; imp8Time = lonarr(5)<br>
+&nbsp;&nbsp;&nbsp; IDL&gt;<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; help, imp8GEI<br>
+&nbsp;&nbsp;&nbsp; IMP8GEI&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+FLOAT&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; = Array[3, 5]<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; help, imp8Time<br>
+&nbsp;&nbsp;&nbsp; IMP8TIME&nbsp;&nbsp;&nbsp; LONG&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; = Array[5]<br>
+&nbsp;&nbsp;&nbsp; IDL&gt;<br>
+&nbsp;&nbsp;&nbsp; IDL&gt;<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; imp8GEI[*,0] = [-32.562, 20.085, -10.471]<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; imp8GEI[*,1] = [-34.415, 4.229, -6.173]<br>
+&nbsp;&nbsp;&nbsp; ...<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; print, imp8GEI<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -32.5620&nbsp;&nbsp;&nbsp;
+20.0850&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -10.4710<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -34.4150&nbsp;&nbsp;&nbsp;
+4.22900&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -6.17300<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -27.2210&nbsp;&nbsp;&nbsp;
+-12.441&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -0.34300<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -9.01000&nbsp;&nbsp;&nbsp;
+-23.380&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;5.39300<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;14.1890&nbsp;&nbsp;&nbsp;
+-19.583&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;7.58900<br>
+&nbsp;&nbsp;&nbsp; IDL&gt;<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; imp8Time = [-43200, 43200, 129600, 216000,
+302400]<br>
+&nbsp;&nbsp;&nbsp; IDL&gt;<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; imp8GEO = cxform(imp8GEI, 'GEI', 'GEO',
+imp8Time)<br>
+&nbsp;&nbsp;&nbsp; IDL&gt;<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; print, imp8GEO<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+25.418317&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+28.593709&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -10.471000<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10.691414&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+32.984396&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -6.1729999<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-6.5404276&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+29.205893&nbsp;&nbsp;&nbsp;&nbsp; -0.34299999<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-20.772292&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+14.011294&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5.3930001<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -22.419840&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-9.0648980&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7.5890002<br>
+<br>
+<br>
+Note that if your data is imported as [M, 3] instead of [3, M], you can<br>
+transpose it using IDL's TRANSPOSE function:<br>
+<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; correctArr = fltarr(3, M)<br>
+&nbsp;&nbsp;&nbsp; IDL&gt; correctArr = TRANSPOSE(originalArr)<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+============================<br>
+&nbsp; USAGE FROM C<br>
+============================<br>
+<br>
+See main.c included in this package for
+an example of using CXFORM in C.<br>
+See install.txt for instructions on
+building it on your platform.<br>
+<br>
+<br>
+</tt></big><big><tt><a name="Test_Results"></a>
+============================<br>
+&nbsp; TEST RESULTS<br>
+</tt></big><big><tt> ============================</tt></big><br>
+<big><tt><br>
+The bulk of the testing used <a
+ href="http://sscweb.gsfc.nasa.gov/cgi-bin/sscweb/Locator.cgi">SSCWeb's
+Locator Tabulator</a> as the data source.<br>
+As stated in the introduction, this service uses GEOPACK for its
+calculations.<br>
+An included file, tester.c, was used to read in data from SSCWeb and<br>
+compare it to the results of CXFORM.&nbsp; In addition, one data point
+was used from<br>
+the <a href="http://www.space-plasma.qmul.ac.uk/heliocoords/">HelioCoords</a>
+transformation package documentation as a sanity check and also<br>
+as a test for the heliospheric systems that are not present in SSCWeb.<br>
+<br>
+<a href="test_results/ACE_2000_results.pdf">ACE data, year 2000, ~40k
+data points</a><br>
+<a href="test_results/Geotail_1993_results.pdf">Geotail data, year
+1993, ~40k data points</a><br>
+<a href="test_results/HelioCoord_Comparison.pdf">IMP-8 data, year 2003,
+~40k data points</a><br>
+<a href="test_results/HelioCoord_Comparison.pdf">Geocentric S/C
+Position from
+HelioCoords documentation, 1 data point</a><br>
+<br>
+<br>
+<br>
+<a name="Sys_Impl"></a> ==================================<br>
+&nbsp; COORDINATE SYSTEMS IMPLEMENTED<br>
+==================================<br>
+<br>
+GEI&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Geocentric
+Equatorial Inertial, also known as True<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+Equator and True Equinox of Date, True of Date (TOD),<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ECI, or GCI<br>
+J2000&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; Geocentric Equatorial
+Inertial for epoch J2000.0 <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (GEI2000), also known as Mean
+Equator and Mean Equinox<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of J2000.0<br>
+GEO&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Geographic,
+also known as Greenwich Rotating<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Coordinates (GRC), or Earth-fixed
+Greenwich (EFG)<br>
+MAG&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Geomagnetic<br>
+GSE&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Geocentric
+Solar Ecliptic<br>
+GSM&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Geocentric
+Solar Magnetospheric<br>
+SM&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Solar
+Magnetic<br>
+RTN*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Radial
+Tangential Normal (Earth-centered)<br>
+GSEQ&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Geocentric Solar
+Equatorial<br>
+HEE&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+Heliocentric Earth Ecliptic<br>
+HAE&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+Heliocentric Aries Ecliptic<br>
+HEEQ&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Heliocentric Earth Equatorial<br>
+<br>
+<br>
+* = this system has not been implemented/tested and should be treated
+as such<br>
+<br>
+<br>
+=================================<br>
+&nbsp; ADDING NEW COORDINATE SYSTEMS<br>
+=================================<br>
+<br>
+This package has been designed to allow for easy additions of new
+coordinate<br>
+systems.<br>
+<br>
+All you need to do is define one transformation between the new system
+and any<br>
+of the existing ones.&nbsp; Once you do that, the Perl script will
+generate code to<br>
+convert to all others.&nbsp; This, of course, means that a working copy
+of Perl must<br>
+be installed.&nbsp; You will need the IxHash module if it is not
+already installed.<br>
+It can be found at http://search.cpan.org/dist/Tie-IxHash/<br>
+<br>
+Here's what you do:<br>
+<br>
+&nbsp; 1. Edit the file cxform-manual.c and add a new function,
+xxxx_twixt_yyyy, <br>
+&nbsp;&nbsp;&nbsp;&nbsp; where `xxxx' is any existing coordinate frame,
+and `yyyy' is the new one.<br>
+<br>
+&nbsp; 2. Run "perl gen_cxform_auto.pl cxform-manual.c" from the
+prompt. This will<br>
+&nbsp;&nbsp;&nbsp;&nbsp; create a new cxform-auto.c with support for
+your new coordinate system.<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp; 3. Build and install a new CXFORM library as described in
+install.txt.<br>
+<br>
+&nbsp; 4. Run and test it in IDL/C.&nbsp; That's it! <br>
+<br>
+If it works, please send in your code.&nbsp; 
+<br>
+<br>
+<a name="Misc"></a> ============================<br>
+&nbsp; VERSION HISTORY<br>
+============================<br>
+<br>
+2000/06/21&nbsp; v0.2
+&nbsp; Ed Santiago:&nbsp; Last released version from Ed.<br>
+2003/09/12&nbsp; v0.3
+&nbsp; Ryan Boller:&nbsp; First modified version from Ryan.&nbsp; Added
+RTN<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; and GSEQ systems,
+IGRF model, slightly different time<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; manipulation,
+Windows support, additional documentation, and<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; standalone C
+functionality.<br>
+2004/03/19&nbsp; v0.4&nbsp; Ryan Boller:&nbsp; Updated Makefile to
+auto-detect platform and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to
+build under Mac OS X.&nbsp; HEEQ system now implemented by Kristi<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Keller.<br>
+2004/05/21&nbsp; v0.5&nbsp;
+Ryan Boller:&nbsp; Fixed small discrepancy in calculation of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T0
+and lambda0.&nbsp; Results now match those of SSCWeb's (GEOPACK-<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+based) when the mag pole lat/lon is fixed to their values,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; as
+they haven't updated their IGRF coefficients.<br>
+2004/12/01&nbsp; v0.6&nbsp;
+Ryan Boller: Finished comprehensive testing, posted results.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Updated IGRF to <a href="http://www.ngdc.noaa.gov/IAGA/vmod/igrf.html">Revision
+9</a>.&nbsp; Moved cxRound, date2es, and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+gregorian_calendar_to_jd to cxform-manual.c so it is included<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; in
+the shared library.<br>
+2006/10/19&nbsp; v0.7&nbsp;
+Ryan Boller: Updated IGRF coefficients to 10th generation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fixed IDL DLM interface under Windows XP &amp; IDL 6.0+. Updated<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+installation documentation.<br>
+2009/11/25&nbsp; v0.71&nbsp;
+Ryan Boller: Updated Mac compiler flags to compile 32- and <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+64-bit versions on Intel- and PPC-based CPUs.&nbsp; Fixed memory pointer<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+problem on 64-bit machines (now using IDL_MEMINT instead of IDL_LONG<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; in
+cxform-dlm.c).<br>
+<br>
+============================<br>
+&nbsp; KNOWN ISSUES / TODOs<br>
+============================<br>
+<br>
+- Mac shared object does not link with C objects.&nbsp; May need to
+convert to a<br>
+&nbsp; dylib.&nbsp; The shared object does work with the IDL DLM
+interface, though.<br>
+- RTN System needs to be tested for accuracy.<br>
+</tt></big><br>
+<br>
+<br>
+</div>
+</div>
+</body>
+</html>

@@ -1,10 +1,11 @@
 static char const Ident[] =
-      "@(#) $Id: cxform-dlm.c,v 1.8 2000/06/21 14:59:50 esm Exp $";
+      "@(#) $Id: cxform-dlm.c,v 1.1.1.1 2005/02/25 20:41:41 rboller Exp $";
 /*
 ** cxform-dlm.c  --  IDL DLM interface for Ed's coordinate transform package
 */
 
 #include <stdio.h>
+#include <string.h>
 #include "export.h"
 
 #include "cxform.h"
@@ -21,7 +22,8 @@ static char const Ident[] =
 ** with Argc/Argv set as usual.  Basically, all we do is check the input
 ** arguments for validity, then call the real code.
 */
-FUNCTION CXFORM(int Argc, IDL_VPTR Argv[], char *Argk)
+//FUNCTION CXFORM(int Argc, IDL_VPTR Argv[], char *Argk)
+IDL_VPTR CXFORM(int Argc, IDL_VPTR Argv[])
 {
   char      *from;
   char      *to;
@@ -33,7 +35,9 @@ FUNCTION CXFORM(int Argc, IDL_VPTR Argv[], char *Argk)
   int        retval_cxform;
 
   int         tmp_ndims;
-  IDL_LONG    tmp_dims[IDL_MAX_ARRAY_DIM];
+  IDL_MEMINT  tmp_dims[IDL_MAX_ARRAY_DIM];
+
+  char      usage_msg[10240];
 
   static IDL_EZ_ARG args[] = {
     /* Double v_in[3] or v_in[3,M] */
@@ -69,8 +73,30 @@ FUNCTION CXFORM(int Argc, IDL_VPTR Argv[], char *Argk)
 
   /* Make sure we got the right number of arguments */
   if (Argc != 4)
-    IDL_Message(IDL_M_GENERIC, IDL_MSG_LONGJMP, 
-		"Usage: v_out = CXFORM( v_in[3], `from', `to', et )");
+  {
+    sprintf(usage_msg,"%s",
+	    "\nIncorrect number of arguments.  Usage:\n"
+
+	    "   new = CXFORM( pos, source_frame, dest_frame, time )\n\n"
+      
+	    "where:\n"
+	    "   pos            is a vector of length 3 or a [3,M] array\n"
+	    "   source_frame   source coordinate system, e.g. 'GSE', 'J2000'\n"
+	    "   dest_frame     destination coordinate system\n"
+	    "   time           seconds past J2000 (Ephemeris Time)\n"
+	    "   new            is the position, in dest_frame coordinates\n\n"
+	  
+	    "Example:\n"
+	    "  IDL> time = date2es(10,15,1987,14,05,00)  ;10/15/1987 14:05:00 UTC\n"
+	    "  IDL> pos = cxform([1,0,0], 'GSE', 'GEO', time)\n"
+	    "  IDL> print, pos\n"
+	    "         0.81014581      -0.56750297    -0.14698347\n\n");
+
+
+    IDL_Message(IDL_M_GENERIC, IDL_MSG_LONGJMP, usage_msg);
+		
+       	/*"Usage: v_out = CXFORM( v_in[3], `from', `to', et )\n");*/
+  }
 
   /* Check the types of each argument */
   IDL_EzCall(Argc, Argv, args);
@@ -104,7 +130,7 @@ FUNCTION CXFORM(int Argc, IDL_VPTR Argv[], char *Argk)
 		    "ET argument must be a vector");
       if (args[0].uargv->value.arr->dim[0] != 3)
 	IDL_Message(IDL_M_NAMED_GENERIC, IDL_MSG_LONGJMP,
-		    "Dimensions of V_IN must be [3] or [M,3]");
+		    "Dimensions of V_IN must be [3] or [3,M]");
       if (args[3].uargv->value.arr->dim[0] != args[0].uargv->value.arr->dim[1])
 	IDL_Message(IDL_M_NAMED_GENERIC, IDL_MSG_LONGJMP,
 		    "Dimension mismatch between V_IN and ET");
@@ -189,13 +215,19 @@ FUNCTION CXFORM(int Argc, IDL_VPTR Argv[], char *Argk)
 /*
 ** This is how IDL knows what to do when user calls CXFORM().  
 */
+
 static IDL_SYSFUN_DEF main_FUNC_def[] = {
     {(IDL_FUN_RET) CXFORM, "CXFORM", 0, 15, 0},
 };
 
+
 int IDL_Load(void)
-{
+{	
+/*  return IDL_SysRtnAdd(main_FUNC_def, TRUE, IDL_CARRAY_ELTS(main_FUNC_def)); */
+
   if (IDL_AddSystemRoutine(main_FUNC_def, IDL_TRUE, 1) == 0)
     return 0;
   return 1;
+
+	
 }
