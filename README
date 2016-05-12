@@ -1,3 +1,13 @@
+==========================
+2016-05-12: New Maintainer
+==========================
+
+Ed Santiago can no longer maintain this code: he hasn't worked
+with IDL, or even had access to it, since 2000. Please contact
+Ryan Boller < ryan.a.boller at nasa dot gov > for support.
+
+-------------------------------------------------------------------------
+
 This is Ed's "cxform" package, for transforming between coordinate frames.
 
 The latest version of this package should be available at
