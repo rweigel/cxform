@@ -21,10 +21,12 @@ DEF = 	cxform.def
 
 # NOTE: User needs to modify appropriate directory for system-specific location of IDL
 IDL_DIR_UNIX=/usr/local/rsi/idl
+IDL_DIR_MAC=/Applications/exelis/idl
 IDL_DIR_WIN=c:\dev\RSI\IDL63
 
 
 IDL_EXT_UNIX=$(IDL_DIR_UNIX)/external
+IDL_EXT_MAC=$(IDL_DIR_MAC)/external
 IDL_EXT_WIN=$(IDL_DIR_WIN)\external
 IDL_LIB_WIN=$(IDL_DIR_WIN)\bin\bin.x86
 
@@ -37,7 +39,7 @@ so:
 		"SunOS")  make sun-cxform.so \
 				"CFLAGS=-fPIC -shared -I$(IDL_EXT_UNIX)" ;;\
 		"Darwin") make mac-cxform.so \
-				"CFLAGS=-fPIC -arch x86_64 -arch i386 -arch ppc -arch ppc64 -I$(IDL_EXT_UNIX)" ;;\
+				"CFLAGS=-fPIC -arch x86_64 -I$(IDL_EXT_MAC)" ;;\
 		"Linux")  make linux-cxform.so \
 				"CFLAGS=-fPIC -shared -I$(IDL_EXT_UNIX)" ;;\
 		*) echo "This operating system is not supported -- use make dll if under MS Windows" ;;\
@@ -49,7 +51,7 @@ so-c:
 		"SunOS")  make sun-cxform-c.so \
 				"CFLAGS=-fPIC -shared" ;;\
 		"Darwin") make mac-cxform-c.so \
-				"CFLAGS=-fPIC -arch x86_64 -arch i386 -arch ppc -arch ppc64" ;;\
+				"CFLAGS=-fPIC -arch x86_64" ;;\
 		"Linux")  make linux-cxform-c.so \
 				"CFLAGS=-fPIC -shared" ;;\
 		*) echo "This operating system is not supported -- use make dll-c if under MS Windows" ;;\
@@ -64,10 +66,10 @@ dll-c:
 
 # MAC-SPECIFIC
 mac-cxform.so:	cxform-auto.o  cxform-manual.o  cxform-dlm.o 
-	gcc -arch x86_64 -arch i386 -arch ppc -arch ppc64 -flat_namespace -undefined suppress -bundle -o cxform.so $^ 
+	gcc -arch x86_64 -flat_namespace -undefined suppress -bundle -o cxform.so $^ 
 
 mac-cxform-c.so: cxform-auto.o  cxform-manual.o
-	gcc -arch x86_64 -arch i386 -arch ppc -arch ppc64 -flat_namespace -undefined suppress -bundle -o cxform-c.so $^
+	gcc -arch x86_64 -flat_namespace -undefined suppress -bundle -o cxform-c.so $^
 
 
 # LINUX-SPECIFIC
