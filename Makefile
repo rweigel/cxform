@@ -39,7 +39,7 @@ so:
 		"SunOS")  make sun-cxform.so \
 				"CFLAGS=-fPIC -shared -I$(IDL_EXT_UNIX)" ;;\
 		"Darwin") make mac-cxform.so \
-				"CFLAGS=-fPIC -arch x86_64 -I$(IDL_EXT_UNIX)" ;;\
+				"CFLAGS=-fPIC -arch x86_64 -I$(IDL_EXT_MAC)" ;;\
 		"Linux")  make linux-cxform.so \
 				"CFLAGS=-fPIC -shared -I$(IDL_EXT_UNIX)" ;;\
 		*) echo "This operating system is not supported -- use make dll if under MS Windows" ;;\
