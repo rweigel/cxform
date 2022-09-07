@@ -35,7 +35,7 @@ int main()
 {
 	/* Misc variables */
 	int retVal, i, j, srcSystemIndex;
-	char srcSystem[3];
+	char srcSystem[4];
 	double jd;
 	Vec v_in, v_out;
 	FILE *filePtr, *filePtrOut;
@@ -124,9 +124,9 @@ int main()
 
 	
 	/* Begin testing */
+	printf("%s\n", srcSystem);
 	strcpy(srcSystem, "GSE");   /* Use 2nd parameter as source system */
 	srcSystemIndex = 4;
-	
 	
 	for (i=0; i<NSYSTEMS; i++)
 	{
