@@ -70,11 +70,10 @@ static char const Ident[] =
 
 #define	SECONDS_PER_CENTURY	(86400 * 365.25 * 100)
 
-#define NUM_IGRF_YEARS_DEFINED 25  /* Jillian altered needs to be # in the array plus 1 (no idea why)*/
+#define NUM_IGRF_YEARS_DEFINED 24
 
 /* for debugging */
 #define	DUMP_MAT	{ int i,j; for (i=0;i<3;i++) { for (j=0;j<3;j++) printf("%15lf ", mat[i][j]); printf("\n"); }}
-
 
 /*****************************************************************************\
 |*                                                                           *|
@@ -350,7 +349,7 @@ epsilon(const double et)
 
 double calcG01(double fracYearIndex, double fracYear)
 {
-	static int g01[NUM_IGRF_YEARS_DEFINED] =
+	static double g01[NUM_IGRF_YEARS_DEFINED] =
 		{-31543, -31464, -31354, -31212, -31060, -30926, -30805, -30715,
 		 -30654, -30594, -30554, -30500, -30421, -30334, -30220, -30100,
 		 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
@@ -361,7 +360,7 @@ double calcG01(double fracYearIndex, double fracYear)
 
 double calcG11(double fracYearIndex, double fracYear)
 {
-	static int g11[NUM_IGRF_YEARS_DEFINED] =
+	static double g11[NUM_IGRF_YEARS_DEFINED] =
 		{-2298, -2298, -2297, -2306, -2317, -2318, -2316, -2306, -2292, -2285,
 		 -2250, -2215, -2169, -2119, -2068, -2013, -1956, -1905, -1848, -1784,
 		 -1728.2, -1669.05, -1586.42, -1501.0};
@@ -372,7 +371,7 @@ double calcG11(double fracYearIndex, double fracYear)
 
 double calcH11(double fracYearIndex, double fracYear)
 {
-	static int h11[NUM_IGRF_YEARS_DEFINED] = 
+	static double h11[NUM_IGRF_YEARS_DEFINED] = 
 		{5922, 5909, 5898, 5875, 5845, 5817, 5808, 5812, 5821, 5810, 5815,
 		 5820, 5791, 5776, 5737, 5675, 5604, 5500, 5406, 5306, 5186.1, 5077.99,
                  4944.26, 4797.1};
@@ -388,11 +387,20 @@ double calcH11(double fracYearIndex, double fracYear)
 
 double mag_lon(double et)
 {
+  // RSW:
+  // 157788000.0 = 365.25*86400 (365.25 is length of Julian year)
+  // 3155803200 = et at 1899-12-31T00:00:00
+  // The fracYearIndex calculation is not exact because it assumes that each 5-year interval
+  // has an average year length of 365.25 days. (In the interval 1900-1904, the average is 365.2;
+  // 1900 is not a leap year and 1904 is, so 365.2 = 366 + 4*365). This approximation will
+  // result in the interpolation being made for the wrong time, but the maximum error will be a fraction
+  // of a day (and interpolation is done over a 5-year period).
   double fracYearIndex = (et+3155803200.0)/157788000.0;
   double fracYear = fmod(fracYearIndex, 1.0);
   double lambda0, g11, h11;
 
-  if (fracYearIndex >= NUM_IGRF_YEARS_DEFINED)
+  /* RSW: Should have -1 here because the last element of g01 is g01[NUM_IGRF_YEARS_DEFINED - 1] */
+  if (fracYearIndex >= NUM_IGRF_YEARS_DEFINED - 1)
   {
 	/*  fprintf(stderr, "ERROR: Specified year is greater than IGRF implementation.  Exiting.");  */
     exit(EXIT_FAILURE);
@@ -406,7 +414,17 @@ double mag_lon(double et)
   /* lambda0 = (360.0-71.115)*(M_PI/180.0);  // SSC year 1990 value  */
   /* lambda0 = (360.0-71.381)*(M_PI/180.0);  // SSC year 1995 value  */
   /* lambda0 = (360.0-71.647)*(M_PI/180.0);  // SSC year 2000 value  */
-  /* printf("lambda: %f\n", 360.0-(lambda*(180.0/M_PI)));  */
+
+  /* Previously, g01, g11, and h11 were ints because that is what IRGF provided. However,
+     they should have been cast as doubles before doing calculations.
+     Running the following shows an difference in using ints vs doubles
+     on the order of 0.001 for the tests.
+
+    double lambda0i;
+    lambda0i = atan2((int) h11, (int) g11) + M_PI;
+    printf("lambda0-lambda0i: %.16f\n", (lambda0-lambda0i)*180.0/M_PI);
+
+  */
 
   return lambda0;
 }
@@ -418,7 +436,8 @@ double mag_lat(double et)
   double fracYear = fmod(fracYearIndex, 1.0);
   double phi0, lambda, g01, g11, h11;
 
-  if (fracYearIndex >= NUM_IGRF_YEARS_DEFINED)
+  /* RSW: Should have -1 here because the last element of g01 is g01[NUM_IGRF_YEARS_DEFINED - 1] */
+  if (fracYearIndex >= NUM_IGRF_YEARS_DEFINED - 1)
   {
     /*  fprintf(stderr, "ERROR: Specified year is greater than IGRF implementation.  Exiting.");  */
     exit(EXIT_FAILURE);
