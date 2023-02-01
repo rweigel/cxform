@@ -70,7 +70,7 @@ static char const Ident[] =
 
 #define	SECONDS_PER_CENTURY	(86400 * 365.25 * 100)
 
-#define NUM_IGRF_YEARS_DEFINED 24
+#define NUM_IGRF_YEARS_DEFINED 25 /* Actually number of IGRF _epochs_ defined */
 
 /* for debugging */
 #define	DUMP_MAT	{ int i,j; for (i=0;i<3;i++) { for (j=0;j<3;j++) printf("%15lf ", mat[i][j]); printf("\n"); }}
@@ -349,10 +349,18 @@ epsilon(const double et)
 
 double calcG01(double fracYearIndex, double fracYear)
 {
-	static double g01[NUM_IGRF_YEARS_DEFINED] =
-		{-31543, -31464, -31354, -31212, -31060, -30926, -30805, -30715,
-		 -30654, -30594, -30554, -30500, -30421, -30334, -30220, -30100,
-		 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
+  /* From https://www.ngdc.noaa.gov/IAGA/vmod/coeffs/igrf13coeffs.txt on 2023-02-01:
+     g/h n m 1900.0 1905.0 1910.0 1915.0 1920.0 1925.0 1930.0 1935.0 1940.0 1945.0 1950.0 1955.0 1960.0 1965.0 1970.0 1975.0 1980.0 1985.0 1990.0 1995.0   2000.0    2005.0    2010.0    2015.0   2020.0 2020-25
+     g  1  0 -31543 -31464 -31354 -31212 -31060 -30926 -30805 -30715 -30654 -30594 -30554 -30500 -30421 -30334 -30220 -30100 -29992 -29873 -29775 -29692 -29619.4 -29554.63 -29496.57 -29441.46 -29404.8     5.7 
+  */
+	static double g01[NUM_IGRF_YEARS_DEFINED+1] =
+		{-31543,    -31464,  -31354,   -31212,   -31060,    -30926,     -30805,     -30715,
+		 -30654,    -30594,  -30554,   -30500,   -30421,    -30334,     -30220,     -30100,
+		 -29992,    -29873,  -29775,   -29692,   -29619.4,  -29554.63,  -29496.57,  -29441.46,
+     -29404.8,  -29404.8};
+  /* Last value is a repeat of second-to last. The second-to last value is the estimated value for
+     epoch [2020-2025). In order to provide a value with fracYear (should be called fracEpoch) in
+     range of [2020-2025), we need this last value. */
 
 	return (g01[(int)floor(fracYearIndex)]*(1.0-fracYear) +
 		g01[(int)ceil(fracYearIndex)]*fracYear);
@@ -360,10 +368,16 @@ double calcG01(double fracYearIndex, double fracYear)
 
 double calcG11(double fracYearIndex, double fracYear)
 {
-	static double g11[NUM_IGRF_YEARS_DEFINED] =
-		{-2298, -2298, -2297, -2306, -2317, -2318, -2316, -2306, -2292, -2285,
-		 -2250, -2215, -2169, -2119, -2068, -2013, -1956, -1905, -1848, -1784,
-		 -1728.2, -1669.05, -1586.42, -1501.0};
+  /* From https://www.ngdc.noaa.gov/IAGA/vmod/coeffs/igrf13coeffs.txt on 2023-02-01:
+     https://www.ngdc.noaa.gov/IAGA/vmod/coeffs/igrf13coeffs.txt
+     g/h n m 1900.0 1905.0 1910.0 1915.0 1920.0 1925.0 1930.0 1935.0 1940.0 1945.0 1950.0 1955.0 1960.0 1965.0 1970.0 1975.0 1980.0 1985.0 1990.0 1995.0   2000.0    2005.0    2010.0    2015.0   2020.0 2020-25
+     g  1  1  -2298  -2298  -2297  -2306  -2317  -2318  -2316  -2306  -2292  -2285  -2250  -2215  -2169  -2119  -2068  -2013  -1956  -1905  -1848  -1784  -1728.2  -1669.05  -1586.42  -1501.77  -1450.9     7.4 
+  */
+	static double g11[NUM_IGRF_YEARS_DEFINED+1] =
+		{-2298,     -2298,    -2297,    -2306,    -2317,    -2318,    -2316,    -2306,
+     -2292,     -2285,    -2250,    -2215,    -2169,    -2119,    -2068,    -2013,
+     -1956,     -1905,    -1848,    -1784,    -1728.2,  -1669.05, -1586.42, -1501.0,
+     -1450.9,   -1450.9};
 
 	return (g11[(int)floor(fracYearIndex)]*(1.0-fracYear) +
 		g11[(int)ceil(fracYearIndex)]*fracYear);
@@ -371,10 +385,16 @@ double calcG11(double fracYearIndex, double fracYear)
 
 double calcH11(double fracYearIndex, double fracYear)
 {
-	static double h11[NUM_IGRF_YEARS_DEFINED] = 
-		{5922, 5909, 5898, 5875, 5845, 5817, 5808, 5812, 5821, 5810, 5815,
-		 5820, 5791, 5776, 5737, 5675, 5604, 5500, 5406, 5306, 5186.1, 5077.99,
-                 4944.26, 4797.1};
+  /* From https://www.ngdc.noaa.gov/IAGA/vmod/coeffs/igrf13coeffs.txt on 2023-02-01:
+     https://www.ngdc.noaa.gov/IAGA/vmod/coeffs/igrf13coeffs.txt
+     g/h n m 1900.0 1905.0 1910.0 1915.0 1920.0 1925.0 1930.0 1935.0 1940.0 1945.0 1950.0 1955.0 1960.0 1965.0 1970.0 1975.0 1980.0 1985.0 1990.0 1995.0   2000.0    2005.0    2010.0    2015.0   2020.0 2020-25
+     h  1  1   5922   5909   5898   5875   5845   5817   5808   5812   5821   5810   5815   5820   5791   5776   5737   5675   5604   5500   5406   5306   5186.1   5077.99   4944.26   4795.99   4652.5   -25.9 
+  */
+	static double h11[NUM_IGRF_YEARS_DEFINED+1] = 
+		{5922,      5909,     5898,   5875,   5845,   5817,     5808,     5812,
+		 5821,      5810,     5815,   5820,   5791,   5776,     5737,     5675,
+     5604,      5500,     5406,   5306,   5186.1, 5077.99,  4944.26,  4795.99,
+     4652.5,    4652.5};
 
 	return (h11[(int)floor(fracYearIndex)]*(1.0-fracYear) + 
 		h11[(int)ceil(fracYearIndex)]*fracYear);
@@ -393,10 +413,9 @@ double mag_lon(double et)
   double fracYear = fmod(fracYearIndex, 1.0);
   double lambda0, g11, h11;
 
-  /* RSW: Should have -1 here because the last element of g01 is g01[NUM_IGRF_YEARS_DEFINED - 1] */
-  if (fracYearIndex >= NUM_IGRF_YEARS_DEFINED - 1)
+  if (fracYearIndex > NUM_IGRF_YEARS_DEFINED)
   {
-	/*  fprintf(stderr, "ERROR: Specified year is greater than IGRF implementation.  Exiting.");  */
+	  fprintf(stderr, "ERROR: Specified year is greater than IGRF implementation.  Exiting.");
     exit(EXIT_FAILURE);
   }
 
@@ -429,10 +448,9 @@ double mag_lat(double et)
   double fracYear = fmod(fracYearIndex, 1.0);
   double phi0, lambda, g01, g11, h11;
 
-  /* RSW: Should have -1 here because the last element of g01 is g01[NUM_IGRF_YEARS_DEFINED - 1] */
-  if (fracYearIndex >= NUM_IGRF_YEARS_DEFINED - 1)
+  if (fracYearIndex > NUM_IGRF_YEARS_DEFINED)
   {
-    /*  fprintf(stderr, "ERROR: Specified year is greater than IGRF implementation.  Exiting.");  */
+    fprintf(stderr, "ERROR: Specified year is greater than IGRF implementation.  Exiting.");
     exit(EXIT_FAILURE);
   }
 

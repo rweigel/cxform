@@ -109,15 +109,51 @@ cxform-c.dll: cxform-auto.o  cxform-manual.o
 # C testing routines
 main.exe: cxform-c.dll main.o
 	gcc $^ -o $@
-	
+
 tester.o:
 	gcc -c -o tester.o tester.c
 
 tester.exe: cxform-c.dll tester.o
 	gcc $^ -o $@
 
+interpolation-issues: interpolation-issues.c
+	gcc interpolation-issues.c cxform-auto.c cxform-manual.c -o interpolation-issues
+	./interpolation-issues 
 
-main:
+# Create test results using revision b00f20 in main branch ('added-interfaces')
+# In previous revisions, tester would not run ("Illegal instruction: 4") due
+# to a string allocation error. Error occured on system with 'gcc --version' returning
+#   Configured with: --prefix=/Library/Developer/CommandLineTools/usr --with-gxx-include-dir=/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include/c++/4.2.1
+#   Apple clang version 12.0.0 (clang-1200.0.32.29)
+#   Target: x86_64-apple-darwin19.5.0
+test-ref: tester.c main.c
+	git checkout b00f20 >> test-log/test-ref-b00f20.log 2>&1
+	@gcc tester.c cxform-auto.c cxform-manual.c -o tester >> test-log/test-ref-b00f20.log 2>&1
+	@./tester >> test-log/test-ref-b00f20.log 2>&1
+	@mv test_results.txt test-log/test_results-b00f20.txt
+	@make --always-make main >> test-log/test-ref-b00f20.log 2>&1
+	@./main > test-log/main_results-b00f20.txt
+	@git checkout added-interfaces >> test-log/test-ref-b00f20.log 2>&1
+
+# Get current repository revision hash, which has a correction that caused
+# IGRF coefficients after 2015 to be interpolated with the 2015 value and zero
+# due to a commit by Jillian.
+REV=$(shell git rev-parse --short HEAD)
+# Create test results using current revision of main branch ('added-interfaces')
+test: tester.c main.c
+	@git checkout added-interfaces >> test-log/test-$(REV).log 2>&1
+	@gcc tester.c cxform-auto.c cxform-manual.c -o tester >> test-log/test-$(REV).log 2>&1
+	@./tester >> test-log/test-ref-$(REV).log 2>&1
+
+	@mv test_results.txt test-log/test_results-$(REV).txt
+	@diff test-log/test_results-254df26.txt test-log/test_results-$(REV).txt && echo "PASS: test_results file matches reference version."
+
+	@make --always-make main >> test-log/test-$(REV).log 2>&1
+	@./main > test-log/main_results-$(REV).txt
+	@diff test-log/main_results-$(REV).txt test-log/main_results-254df26.txt && echo "PASS: main_results file matches reference version."
+
+
+main: main.c cxform-auto.c cxform-manual.c
 	@echo "OS type detected: "`uname`
 	@case `uname` in \
 		"SunOS")  make sun-main \
@@ -146,5 +182,5 @@ linux-main: linux-cxform-c.so main.o
 
 #######################
 clean:
-	rm -f *.so *.sl *.o *.obj *.a core a.out cxform.dll cxform-c.dll cxform.lib cxform.exp main main.exe tester.exe
+	rm -f *.so *.sl *.o *.obj *.a core a.out cxform.dll cxform-c.dll cxform.lib cxform.exp main tester interpolation-issues main.exe tester.exe
 
