@@ -124,7 +124,6 @@ int main()
 
 	
 	/* Begin testing */
-	printf("%s\n", srcSystem);
 	strcpy(srcSystem, "GSE");   /* Use 2nd parameter as source system */
 	srcSystemIndex = 4;
 	
