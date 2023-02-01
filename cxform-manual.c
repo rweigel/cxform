@@ -387,14 +387,8 @@ double calcH11(double fracYearIndex, double fracYear)
 
 double mag_lon(double et)
 {
-  // RSW:
-  // 157788000.0 = 365.25*86400 (365.25 is length of Julian year)
-  // 3155803200 = et at 1899-12-31T00:00:00
-  // The fracYearIndex calculation is not exact because it assumes that each 5-year interval
-  // has an average year length of 365.25 days. (In the interval 1900-1904, the average is 365.2;
-  // 1900 is not a leap year and 1904 is, so 365.2 = 366 + 4*365). This approximation will
-  // result in the interpolation being made for the wrong time, but the maximum error will be a fraction
-  // of a day (and interpolation is done over a 5-year period).
+  // RSW: See interpolation-issues.c for a discussion of how interpolation
+  //      is implemented and assumptions that were made.
   double fracYearIndex = (et+3155803200.0)/157788000.0;
   double fracYear = fmod(fracYearIndex, 1.0);
   double lambda0, g11, h11;
@@ -415,15 +409,14 @@ double mag_lon(double et)
   /* lambda0 = (360.0-71.381)*(M_PI/180.0);  // SSC year 1995 value  */
   /* lambda0 = (360.0-71.647)*(M_PI/180.0);  // SSC year 2000 value  */
 
-  /* Previously, g01, g11, and h11 were ints because that is what IRGF provided. However,
+  /* RSW: Previously, g01, g11, and h11 were ints because that is what IRGF provided. However,
      they should have been cast as doubles before doing calculations.
-     Running the following shows an difference in using ints vs doubles
-     on the order of 0.001 for the tests.
-
+     Running the following shows an difference in using ints vs. doubles
+     on the order of 0.001 for lambda0.
+    
     double lambda0i;
     lambda0i = atan2((int) h11, (int) g11) + M_PI;
     printf("lambda0-lambda0i: %.16f\n", (lambda0-lambda0i)*180.0/M_PI);
-
   */
 
   return lambda0;
