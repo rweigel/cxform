@@ -1,0 +1,107 @@
+error: Your local changes to the following files would be overwritten by checkout:
+	Makefile
+Please commit your changes or stash them before you switch branches.
+Aborting
+Note: switching to 'b00f20'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at b00f20c Account for implicit null terminator to prevent buffer overflow
+cxform-manual.c:356:36: warning: implicit conversion from 'double' to 'int' changes value from -29619.4 to -29619 [-Wliteral-conversion]
+                 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
+                                                 ^~~~~~~~
+cxform-manual.c:356:46: warning: implicit conversion from 'double' to 'int' changes value from -29554.63 to -29554 [-Wliteral-conversion]
+                 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
+                                                           ^~~~~~~~~
+cxform-manual.c:356:57: warning: implicit conversion from 'double' to 'int' changes value from -29496.57 to -29496 [-Wliteral-conversion]
+                 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
+                                                                      ^~~~~~~~~
+cxform-manual.c:367:4: warning: implicit conversion from 'double' to 'int' changes value from -1728.2 to -1728 [-Wliteral-conversion]
+                 -1728.2, -1669.05, -1586.42, -1501.0};
+                 ^~~~~~~
+cxform-manual.c:367:13: warning: implicit conversion from 'double' to 'int' changes value from -1669.05 to -1669 [-Wliteral-conversion]
+                 -1728.2, -1669.05, -1586.42, -1501.0};
+                          ^~~~~~~~
+cxform-manual.c:367:23: warning: implicit conversion from 'double' to 'int' changes value from -1586.42 to -1586 [-Wliteral-conversion]
+                 -1728.2, -1669.05, -1586.42, -1501.0};
+                                    ^~~~~~~~
+cxform-manual.c:377:58: warning: implicit conversion from 'double' to 'int' changes value from 5186.1 to 5186 [-Wliteral-conversion]
+                 5820, 5791, 5776, 5737, 5675, 5604, 5500, 5406, 5306, 5186.1, 5077.99,
+                                                                       ^~~~~~
+cxform-manual.c:377:66: warning: implicit conversion from 'double' to 'int' changes value from 5077.99 to 5077 [-Wliteral-conversion]
+                 5820, 5791, 5776, 5737, 5675, 5604, 5500, 5406, 5306, 5186.1, 5077.99,
+                                                                               ^~~~~~~
+cxform-manual.c:378:18: warning: implicit conversion from 'double' to 'int' changes value from 4944.26 to 4944 [-Wliteral-conversion]
+                 4944.26, 4797.1};
+                 ^~~~~~~
+cxform-manual.c:378:27: warning: implicit conversion from 'double' to 'int' changes value from 4797.1 to 4797 [-Wliteral-conversion]
+                 4944.26, 4797.1};
+                          ^~~~~~
+10 warnings generated.
+
+Attempting to read 50 lines from test_ssc_data.dat
+
+
+Read the following systems:
+GEI
+J2000
+GEO
+MAG
+GSE
+GSM
+SM
+
+ ±àþ
+
+Writing results to test_results.txt
+OS type detected: Darwin
+NOTE TO MAC USERS: There is currently a problem linking a C routine to the cxform-c.so shared library.  The alternative is to compile cxform directly with the routine, as done here
+gcc main.c cxform-auto.c cxform-manual.c -o main
+cxform-manual.c:356:36: warning: implicit conversion from 'double' to 'int' changes value from -29619.4 to -29619 [-Wliteral-conversion]
+                 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
+                                                 ^~~~~~~~
+cxform-manual.c:356:46: warning: implicit conversion from 'double' to 'int' changes value from -29554.63 to -29554 [-Wliteral-conversion]
+                 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
+                                                           ^~~~~~~~~
+cxform-manual.c:356:57: warning: implicit conversion from 'double' to 'int' changes value from -29496.57 to -29496 [-Wliteral-conversion]
+                 -29992, -29873, -29775, -29692, -29619.4, -29554.63, -29496.57, -29442.0};
+                                                                      ^~~~~~~~~
+cxform-manual.c:367:4: warning: implicit conversion from 'double' to 'int' changes value from -1728.2 to -1728 [-Wliteral-conversion]
+                 -1728.2, -1669.05, -1586.42, -1501.0};
+                 ^~~~~~~
+cxform-manual.c:367:13: warning: implicit conversion from 'double' to 'int' changes value from -1669.05 to -1669 [-Wliteral-conversion]
+                 -1728.2, -1669.05, -1586.42, -1501.0};
+                          ^~~~~~~~
+cxform-manual.c:367:23: warning: implicit conversion from 'double' to 'int' changes value from -1586.42 to -1586 [-Wliteral-conversion]
+                 -1728.2, -1669.05, -1586.42, -1501.0};
+                                    ^~~~~~~~
+cxform-manual.c:377:58: warning: implicit conversion from 'double' to 'int' changes value from 5186.1 to 5186 [-Wliteral-conversion]
+                 5820, 5791, 5776, 5737, 5675, 5604, 5500, 5406, 5306, 5186.1, 5077.99,
+                                                                       ^~~~~~
+cxform-manual.c:377:66: warning: implicit conversion from 'double' to 'int' changes value from 5077.99 to 5077 [-Wliteral-conversion]
+                 5820, 5791, 5776, 5737, 5675, 5604, 5500, 5406, 5306, 5186.1, 5077.99,
+                                                                               ^~~~~~~
+cxform-manual.c:378:18: warning: implicit conversion from 'double' to 'int' changes value from 4944.26 to 4944 [-Wliteral-conversion]
+                 4944.26, 4797.1};
+                 ^~~~~~~
+cxform-manual.c:378:27: warning: implicit conversion from 'double' to 'int' changes value from 4797.1 to 4797 [-Wliteral-conversion]
+                 4944.26, 4797.1};
+                          ^~~~~~
+10 warnings generated.
+Previous HEAD position was b00f20c Account for implicit null terminator to prevent buffer overflow
+Switched to branch 'added-interfaces'
+Your branch is ahead of 'origin/added-interfaces' by 2 commits.
+  (use "git push" to publish your local commits)

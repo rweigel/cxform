@@ -1,0 +1,6 @@
+Already on 'added-interfaces'
+Your branch is ahead of 'origin/added-interfaces' by 2 commits.
+  (use "git push" to publish your local commits)
+OS type detected: Darwin
+NOTE TO MAC USERS: There is currently a problem linking a C routine to the cxform-c.so shared library.  The alternative is to compile cxform directly with the routine, as done here
+gcc main.c cxform-auto.c cxform-manual.c -o main

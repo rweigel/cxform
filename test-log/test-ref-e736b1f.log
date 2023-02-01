@@ -1,0 +1,15 @@
+
+Attempting to read 50 lines from test_ssc_data.dat
+
+
+Read the following systems:
+GEI
+J2000
+GEO
+MAG
+GSE
+GSM
+SM
+
+
+Writing results to test_results.txt
