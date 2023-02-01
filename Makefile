@@ -126,6 +126,8 @@ interpolation-issues: interpolation-issues.c
 #   Configured with: --prefix=/Library/Developer/CommandLineTools/usr --with-gxx-include-dir=/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include/c++/4.2.1
 #   Apple clang version 12.0.0 (clang-1200.0.32.29)
 #   Target: x86_64-apple-darwin19.5.0
+# Note: You must commit any edited code before executing 'make test-ref', otherwise
+# the git checkout will fail.
 test-ref: tester.c main.c
 	git checkout b00f20 >> test-log/test-ref-b00f20.log 2>&1
 	@gcc tester.c cxform-auto.c cxform-manual.c -o tester >> test-log/test-ref-b00f20.log 2>&1
