@@ -146,11 +146,11 @@ test: tester.c main.c
 	@./tester >> test-log/test-ref-$(REV).log 2>&1
 
 	@mv test_results.txt test-log/test_results-$(REV).txt
-	@diff test-log/test_results-254df26.txt test-log/test_results-$(REV).txt && echo "PASS: test_results file matches reference version."
+	@diff test-log/test_results-$(REV).txt test-log/test_results-$(REV).txt && echo "PASS: test_results file matches reference version."
 
 	@make --always-make main >> test-log/test-$(REV).log 2>&1
 	@./main > test-log/main_results-$(REV).txt
-	@diff test-log/main_results-$(REV).txt test-log/main_results-254df26.txt && echo "PASS: main_results file matches reference version."
+	@diff test-log/main_results-$(REV).txt test-log/main_results-$(REV).txt && echo "PASS: main_results file matches reference version."
 
 
 main: main.c cxform-auto.c cxform-manual.c
